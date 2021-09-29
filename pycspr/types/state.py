@@ -7,7 +7,7 @@ from pycspr.types.cl import CLAccessRights
 @dataclasses.dataclass
 class DictionaryIdentifier():
     """A set of variants for performation dictionary item state queries.
-    
+
     """
     pass
 
@@ -15,7 +15,7 @@ class DictionaryIdentifier():
 @dataclasses.dataclass
 class DictionaryIdentifier_AccountNamedKey(DictionaryIdentifier):
     """Encapsulates information required to query a dictionary item via an Account's named keys.
-    
+
     """
     # The dictionary item key.
     dictionary_item_key: str
@@ -30,7 +30,7 @@ class DictionaryIdentifier_AccountNamedKey(DictionaryIdentifier):
 @dataclasses.dataclass
 class DictionaryIdentifier_ContractNamedKey(DictionaryIdentifier):
     """Encapsulates information required to query a dictionary item via a Contract's named keys.
-    
+
     """
     # The dictionary item key.
     dictionary_item_key: str
@@ -41,11 +41,27 @@ class DictionaryIdentifier_ContractNamedKey(DictionaryIdentifier):
     # The contract key as a formatted string whose named keys contains dictionary_name.
     key: str
 
+@dataclasses.dataclass
+class UnforgeableReference():
+    """An unforgeable reference storage key.
+
+    """
+    # Uref on-chain identifier.
+    address: bytes
+
+    # Access rights granted by issuer.
+    access_rights: CLAccessRights
+
+    def as_string(self):
+        """Returns a string representation for over the wire dispatch.
+
+        """
+        return f"uref-{self.address.hex()}-{self.access_rights.value:03}"
 
 @dataclasses.dataclass
 class DictionaryIdentifier_SeedURef(DictionaryIdentifier):
     """Encapsulates information required to query a dictionary item via it's seed unforgeable reference.
-    
+
     """
     # The dictionary item key.
     dictionary_item_key: str
@@ -57,7 +73,7 @@ class DictionaryIdentifier_SeedURef(DictionaryIdentifier):
 @dataclasses.dataclass
 class DictionaryIdentifier_UniqueKey(DictionaryIdentifier):
     """Encapsulates information required to query a dictionary item via it's unique key.
-    
+
     """
     # The globally unique dictionary key.
     key: str
@@ -66,7 +82,7 @@ class DictionaryIdentifier_UniqueKey(DictionaryIdentifier):
 @dataclasses.dataclass
 class Key():
     """A pointer to data within global state.
-    
+
     """
     # 32 byte key identifier.
     identifier: bytes
@@ -75,11 +91,11 @@ class Key():
 @dataclasses.dataclass
 class Key_Account(Key):
     """Represents an account identity key.
-    
+
     """
     def as_string(self):
         """Returns a string representation for over the wire dispatch.
-        
+
         """
         return f"account-hash-{self.identifier.hex()}"
 
@@ -87,11 +103,11 @@ class Key_Account(Key):
 @dataclasses.dataclass
 class Key_Hash(Key):
     """Represents an immutable contract identifier.
-    
+
     """
     def as_string(self):
         """Returns a string representation for over the wire dispatch.
-        
+
         """
         return f"hash-{self.identifier.hex()}"
 
@@ -99,28 +115,10 @@ class Key_Hash(Key):
 @dataclasses.dataclass
 class Key_UnforgeableReference(Key):
     """Represents an unforgeable reference.
-    
+
     """
     def as_string(self):
         """Returns a string representation for over the wire dispatch.
-        
+
         """
         return f"uref-{self.identifier.hex()}"
-
-
-@dataclasses.dataclass
-class UnforgeableReference():
-    """An unforgeable reference storage key.
-    
-    """
-    # Uref on-chain identifier.
-    address: bytes
-    
-    # Access rights granted by issuer. 
-    access_rights: CLAccessRights
-
-    def as_string(self):
-        """Returns a string representation for over the wire dispatch.
-        
-        """
-        return f"uref-{self.address.hex()}-{self.access_rights.value:03}"

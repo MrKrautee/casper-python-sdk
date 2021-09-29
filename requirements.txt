@@ -1,7 +1,8 @@
-cryptography
+pytest
+flake8
 ecdsa
+cryptography
 jsonrpcclient
 requests
-pytest
 sseclient-py
 tox
