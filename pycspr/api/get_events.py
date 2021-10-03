@@ -1,5 +1,5 @@
 import json
-import typing
+from typing import Callable, Generator, Tuple
 
 import requests
 import sseclient
@@ -29,21 +29,21 @@ _CHANNEL_TO_TYPE = {
 }
 
 
-def execute(
-    node: NodeConnectionInfo,
-    callback: typing.Callable,
-    channel_type: NodeSseChannelType,
-    event_type: NodeSseEventType = None,
-    event_id: int = 0
-    ):
-    """Binds to a node's event stream - events are passed to callback for processing.
+def execute(node: NodeConnectionInfo, callback: Callable,
+            channel_type: NodeSseChannelType,
+            event_type: NodeSseEventType = None, event_id: int = 0):
+    """
+        Binds to a node's event stream - events are passed to callback for
+        processing.
 
-    :param node: Information required to connect to a node.
-    :param callback: Callback to invoke whenever an event of relevant type is received.
-    :param channel_type: Type of event channel to which to bind.
-    :param event_type: Type of event type to listen for (all if unspecified).
-    :param event_id: Identifer of event from which to start stream listening.
-
+        :param node: Information required to connect to a node.
+        :param callback: Callback to invoke whenever an event of relevant type
+                         is received.
+        :param channel_type: Type of event channel to which to bind.
+        :param event_type: Type of event type to listen for
+                           (all if unspecified).
+        :param event_id: Identifer of event from which to start stream
+                         listening.
     """
     if event_type is not None:
         _validate_that_channel_supports_event_type(channel_type, event_type)
@@ -53,9 +53,10 @@ def execute(
         callback(channel_type, event_type, event_id, payload)
 
 
-def _get_sse_client(node: NodeConnectionInfo, channel_type: NodeSseChannelType, event_id: int):
-    """Returns SSE client.
-
+def _get_sse_client(node: NodeConnectionInfo, channel_type: NodeSseChannelType,
+                    event_id: int):
+    """
+        Returns SSE client.
     """
     url = f"{node.address_sse}/{channel_type.name.lower()}"
     if event_id:
@@ -65,67 +66,47 @@ def _get_sse_client(node: NodeConnectionInfo, channel_type: NodeSseChannelType, 
     return sseclient.SSEClient(stream)
 
 
-def _parse_event(event_id: int, payload: dict) -> typing.Tuple[NodeSseEventType, int, dict]:
-    """Parses raw event data for upstream processing.
+def _parse_event(event_id: int,
+                 payload: dict) -> Tuple[NodeSseEventType, int, dict]:
+    """
+        Parses raw event data for upstream processing.
 
     """
     if "ApiVersion" in payload:
         pass
-
     elif "BlockAdded" in payload:
-        return \
-            NodeSseEventType.BlockAdded, \
-            event_id, \
-            payload
-
+        return NodeSseEventType.BlockAdded, event_id, payload
     elif "DeployProcessed" in payload:
         return \
-            NodeSseEventType.DeployProcessed, \
-            event_id, \
-            payload
-
+            NodeSseEventType.DeployProcessed, event_id, payload
     elif "Fault" in payload:
-        return \
-            NodeSseEventType.Fault, \
-            event_id, \
-            payload
-
+        return NodeSseEventType.Fault, event_id, payload
     elif "Step" in payload:
-        return \
-            NodeSseEventType.Step, \
-            event_id, \
-            payload
-
+        return NodeSseEventType.Step, event_id, payload
     elif "DeployAccepted" in payload:
-        return \
-            NodeSseEventType.DeployAccepted, \
-            event_id, \
-            payload
-
+        return NodeSseEventType.DeployAccepted, event_id, payload
     elif "FinalitySignature" in payload:
-        return \
-            NodeSseEventType.FinalitySignature, \
-            event_id, \
-            payload
-
+        return NodeSseEventType.FinalitySignature, event_id, payload
     else:
         print("TODO: process unknown event: {payload}")
 
 
-def _validate_that_channel_supports_event_type(channel_type: NodeSseChannelType, event_type: NodeSseEventType = None):
-    """Validates that the channel supports the event type.
-
-    """    
+def _validate_that_channel_supports_event_type(
+        channel_type: NodeSseChannelType, event_type: NodeSseEventType = None):
+    """
+        Validates that the channel supports the event type.
+    """
     if channel_type not in _CHANNEL_TO_TYPE:
         raise ValueError(f"Unsupported SSE channel: {channel_type.name}.")
 
     if event_type not in _CHANNEL_TO_TYPE[channel_type]:
-        raise ValueError(f"Unsupported SSE channel/event permutation: {channel_type.name}:{event_type.name}.")
+        raise ValueError(f"Unsupported SSE channel/event permutation: "
+                         f"{channel_type.name}:{event_type.name}.")
 
 
-def _yield_events(sse_client) -> typing.Generator:
-    """Yields events streaming from node.
-
+def _yield_events(sse_client) -> Generator:
+    """
+        Yields events streaming from node.
     """
     try:
         for event in sse_client.events():
@@ -135,7 +116,5 @@ def _yield_events(sse_client) -> typing.Generator:
     except Exception as err:
         try:
             sse_client.close()
-        except:
-            pass
         finally:
             raise err
