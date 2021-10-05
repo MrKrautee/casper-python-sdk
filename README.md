@@ -30,6 +30,43 @@ pip install pycspr
 
 ## Development
 
+### Design
+
+```
+_____________  _______________
+|           |  |             |
+| Deploys   |  |             |
+|           |  |             |
+-------------  ---------------
+      |
+     call
+      |
+      V
+_______________________________________
+|                    |                |   Manipulating in and output. 
+|        Client      |  pycspr.types  |   More complex but common tasks using the CasperApi calls.
+|    (pycspr.client) |                |   Converts raw responses into pycspr.types.
+---------------------------------------
+            |
+           call
+            |
+            V
+___________________________
+|                         |    
+|      CasperApi          |   "Low Level" communication, REST and RPC Api calls. 
+|     (pycspr.api)        |   No manipulation of in and output. All endpoints are 
+---------------------------   defined here. They are returning the raw rpc/rest response.
+            |
+           call
+            |
+            V
+___________________________
+|                         |    
+|      request,           |   
+|    jsonrpcclient, ...   |   
+---------------------------
+```
+
 ### Set up local test NCTL network
 
 #### Installing Rust
