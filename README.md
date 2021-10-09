@@ -142,6 +142,8 @@ TODO: Git pre-commit-hook needed.
 
 ## Additional Resources
 * Json RPC Schema in [resources/rpc_schema.json](resources/rpc_schema.json)
+* Casper Specifcation:
+  [https://caspernetwork.readthedocs.io/en/latest/implementation/](https://caspernetwork.readthedocs.io/en/latest/implementation/)
 * Casper Documentation: [https://docs.casperlabs.io/](https://docs.casperlabs.io/)
 * How to stake your CSPR:
   [https://casper.network/network/blog/how-to-stake-your-cspr](https://casper.network/network/blog/how-to-stake-your-cspr)
